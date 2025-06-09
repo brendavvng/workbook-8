@@ -25,22 +25,27 @@ public class App {
     );
 
     //start our prepared statement
+        // adding in other columns
     PreparedStatement preparedStatement = connection.prepareStatement(
-            "SELECT ProductName FROM Products WHERE ProductID = ?"
+            "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
     );
-
-    // find the question mark by index and provide its safe value
-    preparedStatement.setInt(1, 14);
 
     // execute the query
     ResultSet resultSet = preparedStatement.executeQuery();
+
+    System.out.println("\n            Products: ");
+    System.out.println("\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n");
 
     // loop thru the results
     while (resultSet.next()) {
         // process the data
         System.out.printf(
-                "productName = %s\n",
-                resultSet.getString("ProductName")
+                "\nProduct ID: %d\nName: %s\nPrice: %.2f\nStock: %.2f\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                resultSet.getInt("ProductID"),
+                resultSet.getString("ProductName"),
+                resultSet.getDouble("UnitPrice"),
+                resultSet.getDouble("UnitsInStock")
+
             );
         }
 
