@@ -35,7 +35,7 @@ public class App {
             while (results.next()) {
                 String products = results.getString("ProductName");
                 // adding productID just because
-                String productId = results.getString("ProductID");
+                int productId = results.getInt("ProductID");
                 System.out.println(products + " - " + productId);
             }
 
