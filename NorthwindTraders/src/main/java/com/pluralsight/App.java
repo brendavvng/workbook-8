@@ -3,52 +3,50 @@ package com.pluralsight;
 import java.sql.*;
 
 public class App {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-    // main method
-    public static void main(String[] args) throws SQLException {
+    //making sure we passed in 2 arguments from the command line when we run the app
+    //this is done with the app configuration in intellij (page 45 of the wb)
+    if (args.length != 2) {
+        System.out.println(
+                "Application needs two arguments to run: " +
+                        "java com.pluralsight.UsingDriverManager <username> <password>"
+        );
+        System.exit(1);
+    }
 
-        Connection connection = null;
-        try {
+    // get the user name and password from the command line args
+    String username = args[0];
+    String password = args[1];
 
-            // 1. open a connection to the database
-            // use the database URL to point to the correct database
+    // create the connection and prepared statement
+    Connection connection = DriverManager.getConnection(
+            "jdbc:mysql://localhost:3306/northwind", username, password
+    );
 
-            //this is like opening MySQL workbench and clicking localhost
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", "root", "yearup");
+    //start our prepared statement
+    PreparedStatement preparedStatement = connection.prepareStatement(
+            "SELECT ProductName FROM Products WHERE ProductID = ?"
+    );
 
-            // create statement
-            // the statement is tied to the open connection
-            // like me opening a new query window
-            Statement statement = connection.createStatement();
+    // find the question mark by index and provide its safe value
+    preparedStatement.setInt(1, 14);
 
-            // define your query
-            // like me typing the query in the new query windows
-            String query = "SELECT * FROM products";
+    // execute the query
+    ResultSet resultSet = preparedStatement.executeQuery();
 
-
-            // 2. Execute your query
-            // this is like me clicking the lightning bolt
-            ResultSet results = statement.executeQuery(query);
-
-            // process the results
-            // this is a way to view the result set but java doesnt have a spreadsheet view for us
-            while (results.next()) {
-                String products = results.getString("ProductName");
-                // adding productID just because
-                int productId = results.getInt("ProductID");
-                System.out.println(products + " - " + productId);
-            }
-
-            // 3. Close the connection
-            // closing mysql workbench
-            connection.close();
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            //closing mysql workbench
-            connection.close();
+    // loop thru the results
+    while (resultSet.next()) {
+        // process the data
+        System.out.printf(
+                "productName = %s\n",
+                resultSet.getString("ProductName")
+            );
         }
 
+    // close the resources
+    resultSet.close();
+    preparedStatement.close();
+    connection.close();
     }
 }
