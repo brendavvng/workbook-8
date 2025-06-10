@@ -40,12 +40,11 @@ public class App {
     while (resultSet.next()) {
         // process the data
         System.out.printf(
-                "\nProduct ID: %d\nName: %s\nPrice: %.2f\nStock: %.2f\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                "\nProduct ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %.2f\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
                 resultSet.getInt("ProductID"),
                 resultSet.getString("ProductName"),
                 resultSet.getDouble("UnitPrice"),
                 resultSet.getDouble("UnitsInStock")
-
             );
         }
 
