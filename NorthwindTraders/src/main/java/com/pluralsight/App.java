@@ -90,7 +90,7 @@ public class App {
                     while (resultSet.next()) {
                         // process the data
                         System.out.printf(
-                                "\nContact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone             %s\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                "\nContact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
                                 resultSet.getString("ContactName"),
                                 resultSet.getString("CompanyName"),
                                 resultSet.getString("City"),
