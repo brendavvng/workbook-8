@@ -44,8 +44,9 @@ public class App {
                 System.out.println("What would you like to do?");
                 System.out.println("1] Display all products");
                 System.out.println("2] Display all customers");
+                System.out.println("3] Display all categories");
                 System.out.println("0] Exit");
-                System.out.print("Please select an option [1, 2, or 0]: ");
+                System.out.print("Please select an option [1, 2, 3, or 0]: ");
                 // reading user input, creating int choice variable, and going to next line
                 int choice = theScanner.nextInt();
 
@@ -61,13 +62,13 @@ public class App {
 
                     // header for products list
                     System.out.println("\n            Products: ");
-                    System.out.println("\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n");
+                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
 
                     // loop through the results
                     while (resultSet.next()) {
                         // process the data
                         System.out.printf(
-                                "\nProduct ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %d\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                "Product ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
                                 resultSet.getInt("ProductID"),
                                 resultSet.getString("ProductName"),
                                 resultSet.getDouble("UnitPrice"),
@@ -84,13 +85,13 @@ public class App {
 
                     // header for customers list
                     System.out.println("\n            Customers: ");
-                    System.out.println("\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n");
+                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
 
                     // loop through the results
                     while (resultSet.next()) {
                         // process the data
                         System.out.printf(
-                                "\nContact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n \n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                "Contact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
                                 resultSet.getString("ContactName"),
                                 resultSet.getString("CompanyName"),
                                 resultSet.getString("City"),
@@ -98,13 +99,90 @@ public class App {
                                 resultSet.getString("Phone")
                         );
                     }
-                    // if user chooses 0, display this
-                    // 0 = exit system, printing out goodbye message
+
+                    // if user chooses option 3, display categories
+                } else if (choice == 3) {
+                    preparedStatement = connection.prepareStatement(
+                            "SELECT CategoryID, CategoryName FROM Categories"
+                    );
+                    // execute query
+                    resultSet = preparedStatement.executeQuery();
+
+                    // header for categories list
+                    System.out.println("\n            Categories: ");
+                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+                    // loop through the results
+                    while (resultSet.next()) {
+                        // process the data
+                        System.out.printf(
+                                "Category ID:       %s\nCategory Name:     %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                resultSet.getInt("CategoryID"),
+                                resultSet.getString("CategoryName")
+                        );
+
+                    }
+
+                    // initializing categoryChoice outside of loop
+                    // using -1 as default vale to indicate it hasn't been assigned a valid category ID yet
+                    int categoryChoice = -1;
+
+                    // while true loop to keep asking user for input until it is valid
+                    while (true) {
+                        System.out.println("\nWhich Category ID would you like to see to display all products?");
+                        System.out.print("Please choose between categories 1-8: ");
+
+                        if (theScanner.hasNextInt()) {
+                            categoryChoice = theScanner.nextInt();
+
+                            // if number is between 1-8
+                            if (categoryChoice >= 1 && categoryChoice <= 8) {
+                                // if user chooses valid input, exit the loop
+                                break;
+                            } else {
+                                // if user chooses invalid number, prints error message & goes back to start of loop to ask again
+                                System.out.println("Invalid Category ID. Please enter a number between 1-8.");
+                            }
+                        } else {
+                            // prints out error message if user enters in anything other than a number, like a string
+                            System.out.println("Invalid input. Please enter a number.");
+                            theScanner.next(); // clear invalid input
+                        }
+                    }
+
+                    // printing out products table and listing columns, included the CategoryID column as well for validation
+                    preparedStatement = connection.prepareStatement(
+                            "SELECT Cat.CategoryID, Prod.ProductID, Prod.ProductName, Prod.UnitPrice, Prod.UnitsInStock " +
+                                    "FROM Products Prod " +
+                                    "JOIN Categories Cat ON Prod.CategoryID = Cat.CategoryID " +
+                                    "WHERE Prod.CategoryID = ?"
+                    );
+
+                    // 1 is the placeholder for the question mark, then asking for the users choice
+                    preparedStatement.setInt(1, categoryChoice);
+                    resultSet = preparedStatement.executeQuery();
+
+                    System.out.println("\nProduct Details from Category ID: " + categoryChoice);
+                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+                    while (resultSet.next()) {
+                        System.out.printf(
+                                "Category ID:   %s\nProduct ID:    %d\nProduct Name:  %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                resultSet.getInt("CategoryID"),
+                                resultSet.getInt("ProductID"),
+                                resultSet.getString("ProductName"),
+                                resultSet.getDouble("UnitPrice"),
+                                resultSet.getInt("UnitsInStock")
+                        );
+                    }
+
+                    // if user chooses 0
+                    // 0 = exit system, displays goodbye message
                 } else if (choice == 0) {
                     System.out.println("────────────୨ৎ────────────");
                     System.out.println("Exiting system now. Goodbye! •ᴗ•");
                     return;
-                    // if user chooses invalid number, print this
+                    // if user chooses invalid number, print error message
                 } else {
                     System.out.println("Invalid option, please choose between options 1, 2, or 0.");
                 }
