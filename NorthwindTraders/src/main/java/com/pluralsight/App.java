@@ -52,9 +52,9 @@ public class App {
                     try (PreparedStatement preparedStatement = connection.prepareStatement(
                             "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
                     );
-
                     // execute the query and getting results, try with resources ensures result set is automatically closed after use
-                    ResultSet resultSet = preparedStatement.executeQuery()) {
+                    ResultSet resultSet = preparedStatement.executeQuery()
+                    ) {
 
                         // header for products list
                         System.out.println("\n            Products: ");
@@ -106,7 +106,8 @@ public class App {
                             "SELECT CategoryID, CategoryName FROM Categories"
                     );
                     // execute query
-                    ResultSet resultSet = preparedStatement.executeQuery()) {
+                    ResultSet resultSet = preparedStatement.executeQuery()
+                    ) {
                         // header for categories list
                         System.out.println("\n            Categories: ");
                         System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
@@ -157,15 +158,14 @@ public class App {
                             "SELECT Cat.CategoryID, Prod.ProductID, Prod.ProductName, Prod.UnitPrice, Prod.UnitsInStock " +
                                     "FROM Products Prod " +
                                     "JOIN Categories Cat ON Prod.CategoryID = Cat.CategoryID " +
-                                    "WHERE Prod.CategoryID = ?" )) {
-
+                                    "WHERE Prod.CategoryID = ?" )
+                    ) {
                         // 1 is the placeholder for the question mark, then asking for the users choice
                         preparedStatement.setInt(1, categoryChoice);
 
                         // executing query and getting results
                         // try with resources ensures the result set is automatically closed after use
                         try (ResultSet resultSet = preparedStatement.executeQuery()) {
-
                             System.out.println("\nProduct Details from Category ID: " + categoryChoice);
                             System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
 
@@ -183,15 +183,17 @@ public class App {
                         }
 
                     }
+
+                } else if (choice == 0) {
                     // if user chooses 0
                     // 0 = exit system, displays goodbye message
-                } else if (choice == 0) {
                     System.out.println("────────────୨ৎ────────────");
                     System.out.println("Exiting system now. Goodbye! •ᴗ•");
-                    return;
-                    // if user chooses invalid number, print error message
+                    running = false;
+
                 } else {
-                    System.out.println("Invalid option, please choose between options 1, 2, or 0.");
+                    // if user chooses invalid number, print error message
+                    System.out.println("Invalid option, please choose between options 1, 2, 3, or 0.");
                 }
 
             }
