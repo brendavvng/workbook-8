@@ -9,8 +9,6 @@ public class App {
         // initializing scanner for user input
         Scanner theScanner = new Scanner(System.in);
 
-
-
         //making sure we passed in 2 arguments from the command line when we run the app
         //this is done with the app configuration in intellij (page 45 of the wb)
         if (args.length != 2) {
@@ -61,6 +59,7 @@ public class App {
                     // execute the query
                     resultSet = preparedStatement.executeQuery();
 
+                    // header for products list
                     System.out.println("\n            Products: ");
                     System.out.println("\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n");
 
@@ -80,9 +79,10 @@ public class App {
                     preparedStatement = connection.prepareStatement(
                             "SELECT ContactName, CompanyName, City, Country, Phone FROM Customers"
                     );
-
+                    // execute query
                     resultSet = preparedStatement.executeQuery();
 
+                    // header for customers list
                     System.out.println("\n            Customers: ");
                     System.out.println("\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n");
 
@@ -111,9 +111,6 @@ public class App {
 
             }
 
-
-
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -131,7 +128,6 @@ public class App {
                     e.printStackTrace();
                 }
             }
-
             if (connection != null) {
                 try {
                     connection.close();
