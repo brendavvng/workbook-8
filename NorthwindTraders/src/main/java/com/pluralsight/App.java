@@ -23,15 +23,9 @@ public class App {
         String username = args[0];
         String password = args[1];
 
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            // create the connection and prepared statement
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/northwind", username, password
-            );
+        // try with resources ensures connection is automatically closed at end of block
+        // establishing connection to northwind database with username and password
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password)) {
 
             // creating boolean to set running to true
             boolean running = true;
@@ -47,79 +41,86 @@ public class App {
                 System.out.println("3] Display all categories");
                 System.out.println("0] Exit");
                 System.out.print("Please select an option [1, 2, 3, or 0]: ");
+
                 // reading user input, creating int choice variable, and going to next line
                 int choice = theScanner.nextInt();
 
                 // if user chooses 1, display this
                 if (choice == 1) {
-                    //start our prepared statement
-                    // adding in other columns
-                    preparedStatement = connection.prepareStatement(
+                    // try with resources ensures the prepared statement is automatically closed after use
+                    // execute SQL statement
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(
                             "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
                     );
-                    // execute the query
-                    resultSet = preparedStatement.executeQuery();
 
-                    // header for products list
-                    System.out.println("\n            Products: ");
-                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+                    // execute the query and getting results, try with resources ensures result set is automatically closed after use
+                    ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                    // loop through the results
-                    while (resultSet.next()) {
-                        // process the data
-                        System.out.printf(
-                                "Product ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-                                resultSet.getInt("ProductID"),
-                                resultSet.getString("ProductName"),
-                                resultSet.getDouble("UnitPrice"),
-                                resultSet.getInt("UnitsInStock")
-                        );
+                        // header for products list
+                        System.out.println("\n            Products: ");
+                        System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+                        // loop through the results
+                        while (resultSet.next()) {
+                            // process the data
+                            System.out.printf(
+                                    "Product ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                    resultSet.getInt("ProductID"),
+                                    resultSet.getString("ProductName"),
+                                    resultSet.getDouble("UnitPrice"),
+                                    resultSet.getInt("UnitsInStock")
+                            );
+                        }
                     }
                     // if user chooses 2, display this
                 } else if (choice == 2) {
-                    preparedStatement = connection.prepareStatement(
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(
                             "SELECT ContactName, CompanyName, City, Country, Phone FROM Customers"
                     );
                     // execute query
-                    resultSet = preparedStatement.executeQuery();
+                    ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                    // header for customers list
-                    System.out.println("\n            Customers: ");
-                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+                        // header for customers list
+                        System.out.println("\n            Customers: ");
+                        System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
 
-                    // loop through the results
-                    while (resultSet.next()) {
-                        // process the data
-                        System.out.printf(
-                                "Contact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-                                resultSet.getString("ContactName"),
-                                resultSet.getString("CompanyName"),
-                                resultSet.getString("City"),
-                                resultSet.getString("Country"),
-                                resultSet.getString("Phone")
-                        );
+                        // loop through the results
+                        while (resultSet.next()) {
+                            // process the data
+                            System.out.printf(
+                                    "Contact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                    resultSet.getString("ContactName"),
+                                    resultSet.getString("CompanyName"),
+                                    resultSet.getString("City"),
+                                    resultSet.getString("Country"),
+                                    resultSet.getString("Phone")
+                            );
+                        }
+
                     }
 
                     // if user chooses option 3, display categories
                 } else if (choice == 3) {
-                    preparedStatement = connection.prepareStatement(
+                    // try with resources ensures the prepared statement is automatically closed after use
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(
                             "SELECT CategoryID, CategoryName FROM Categories"
                     );
                     // execute query
-                    resultSet = preparedStatement.executeQuery();
+                    ResultSet resultSet = preparedStatement.executeQuery()) {
+                        // header for categories list
+                        System.out.println("\n            Categories: ");
+                        System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
 
-                    // header for categories list
-                    System.out.println("\n            Categories: ");
-                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+                        // loop through the results
+                        while (resultSet.next()) {
+                            // process the data
+                            System.out.printf(
+                                    "Category ID:       %s\nCategory Name:     %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                    resultSet.getInt("CategoryID"),
+                                    resultSet.getString("CategoryName")
+                            );
 
-                    // loop through the results
-                    while (resultSet.next()) {
-                        // process the data
-                        System.out.printf(
-                                "Category ID:       %s\nCategory Name:     %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-                                resultSet.getInt("CategoryID"),
-                                resultSet.getString("CategoryName")
-                        );
+                        }
 
                     }
 
@@ -151,31 +152,37 @@ public class App {
                     }
 
                     // printing out products table and listing columns, included the CategoryID column as well for validation
-                    preparedStatement = connection.prepareStatement(
+                    // try with resources ensures the prepared statement is automatically closed after use
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(
                             "SELECT Cat.CategoryID, Prod.ProductID, Prod.ProductName, Prod.UnitPrice, Prod.UnitsInStock " +
                                     "FROM Products Prod " +
                                     "JOIN Categories Cat ON Prod.CategoryID = Cat.CategoryID " +
-                                    "WHERE Prod.CategoryID = ?"
-                    );
+                                    "WHERE Prod.CategoryID = ?" )) {
 
-                    // 1 is the placeholder for the question mark, then asking for the users choice
-                    preparedStatement.setInt(1, categoryChoice);
-                    resultSet = preparedStatement.executeQuery();
+                        // 1 is the placeholder for the question mark, then asking for the users choice
+                        preparedStatement.setInt(1, categoryChoice);
 
-                    System.out.println("\nProduct Details from Category ID: " + categoryChoice);
-                    System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+                        // executing query and getting results
+                        // try with resources ensures the result set is automatically closed after use
+                        try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                    while (resultSet.next()) {
-                        System.out.printf(
-                                "Category ID:   %s\nProduct ID:    %d\nProduct Name:  %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-                                resultSet.getInt("CategoryID"),
-                                resultSet.getInt("ProductID"),
-                                resultSet.getString("ProductName"),
-                                resultSet.getDouble("UnitPrice"),
-                                resultSet.getInt("UnitsInStock")
-                        );
+                            System.out.println("\nProduct Details from Category ID: " + categoryChoice);
+                            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+                            while (resultSet.next()) {
+                                System.out.printf(
+                                        "Category ID:   %s\nProduct ID:    %d\nProduct Name:  %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                                        resultSet.getInt("CategoryID"),
+                                        resultSet.getInt("ProductID"),
+                                        resultSet.getString("ProductName"),
+                                        resultSet.getDouble("UnitPrice"),
+                                        resultSet.getInt("UnitsInStock")
+                                );
+                            }
+
+                        }
+
                     }
-
                     // if user chooses 0
                     // 0 = exit system, displays goodbye message
                 } else if (choice == 0) {
@@ -191,28 +198,6 @@ public class App {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }
