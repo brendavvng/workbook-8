@@ -2,9 +2,6 @@ package com.pluralsight;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Scanner;
