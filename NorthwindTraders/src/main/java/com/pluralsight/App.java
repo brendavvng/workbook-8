@@ -1,5 +1,8 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Scanner;
 
@@ -23,9 +26,18 @@ public class App {
         String username = args[0];
         String password = args[1];
 
+        // creating the datasource
+        BasicDataSource dataSource = new BasicDataSource();
+
+        // configure the datasource
+        dataSource.setUrl("jdbc:mysql://localhost:3306/northwind");
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+
+
         // try with resources ensures connection is automatically closed at end of block
         // establishing connection to northwind database with username and password
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/northwind", username, password)) {
+        try (Connection connection = dataSource.getConnection()) {
 
             // creating boolean to set running to true
             boolean running = true;
