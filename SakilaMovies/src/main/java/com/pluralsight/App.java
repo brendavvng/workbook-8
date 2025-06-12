@@ -118,7 +118,7 @@ public class App {
             }
 
         } catch (Exception e) {
-            System.err.println("Sorry, there's been an error searching for actors: " + e.getMessage());
+            System.out.println("Sorry, there's been an error searching for actors: " + e.getMessage());
         }
     }
 
