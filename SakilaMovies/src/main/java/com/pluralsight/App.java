@@ -1,11 +1,22 @@
 package com.pluralsight;
 
+import com.pluralsight.dao.ActorDao;
+import com.pluralsight.dao.FilmDao;
+import com.pluralsight.models.Actor;
+import com.pluralsight.models.Film;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.BaseStream;
 
 public class App {
+
+    // creating the datasource
+    private static BasicDataSource dataSource = new BasicDataSource();
+
 
     // initializing scanner
     static Scanner theScanner = new Scanner(System.in);
@@ -25,234 +36,148 @@ public class App {
         String username = args[0];
         String password = args[1];
 
-
-        // creating the datasource
-        BasicDataSource dataSource = new BasicDataSource();
-
         // configure the datasource
+        dataSource = new BasicDataSource();
         dataSource.setUrl("jdbc:mysql://localhost:3306/sakila");
         dataSource.setUsername(username);
         dataSource.setPassword(password);
 
-        // header and menu
-        System.out.println("\n          Hello •ᴗ•");
-        System.out.println("────────────୨ৎ────────────");
-        System.out.println("What is the last name of your favorite actor?");
-        System.out.print("Please enter answer here: ");
-        String results = theScanner.nextLine();
+        // creating data manager for actor dao and film dao
+        ActorDao actorDataManager = new ActorDao(dataSource);
+        FilmDao filmDataManager = new FilmDao(dataSource);
 
+        // creating boolean set to true for while loop
+        boolean running = true;
 
+        // while loop to keep running until condition is false
+        while (running) {
 
+            System.out.println("\n          Hello •ᴗ•");
+            System.out.println("────────────୨ৎ────────────");
+            System.out.println("What would you like to do?");
+            System.out.println("1] Search actor by last name");
+            System.out.println("2] Search actor by first and last name");
+            System.out.println("0] Exit");
+            System.out.print("Please select an option [1, 2, or 0]: ");
 
+            // reading user input, creating int choice variable, and going to next line
+            int choice = theScanner.nextInt();
+            // consuming next line
+            theScanner.nextLine();
 
+            // now using switch statements for menu options and to call in methods
+            switch (choice) {
+                case 1:
+                    // displays actors name
+                    displayActorsByLastName(actorDataManager);
+                    break;
+                case 2:
+                    // displays first & last name of actor
+                    displayActorsByFirstAndLastName(actorDataManager);
+                    break;
+                case 0:
+                    // if user chooses 0, exits the system
+                    System.out.println("────────────୨ৎ────────────");
+                    System.out.println("Exiting system now. Goodbye! •ᴗ•");
+                    running = false;
+                    break;
+                default:
+                    // if user does not choose a valid option, display this message
+                    System.out.println("Invalid option, please choose between options 1, 2, or 0.");
+            }
+        }
+    }
 
-//
-//
-//
+    // creating method to display acotrs by their last name
+    private static void displayActorsByLastName(ActorDao actorDao) {
+        try {
+            // asking user for last name
+            System.out.print("Please enter the last name of the actor: ");
+            String theLastName = theScanner.nextLine();
 
-//
-//        // try with resources ensures connection is automatically closed at end of block
-//        // establishing connection to northwind database with username and password
-//        try (Connection connection = dataSource.getConnection()) {
-//
-//            // creating boolean to set running to true
-//            boolean running = true;
-//
-//            // while loop so user can put in correct input/choice only
-//            while (running) {
-//
-//
-//                // reading user input, creating int choice variable, and going to next line
-//                String choice = theScanner.nextLine();
-//
-//
-//                // now using switch statements for menu options and to call in methods
-//                switch (choice) {
-//                    case 1:
-//                        // displays all products
-//                        displayAllProducts(connection);
-//                        break;
-//                    case 2:
-//                        // displays all customers
-//                        displayAllCustomers(connection);
-//                        break;
-//                    case 3:
-//                        // displays all categories first
-//                        displayAllCategories(connection);
-//                        // then displays question to ask user which category ID they'd like to choose to view all products in that category
-//                        displayProductsByCategory(connection, theScanner);
-//                        break;
-//                    case 0:
-//                        // if user chooses 0, exits the system
-//                        System.out.println("────────────୨ৎ────────────");
-//                        System.out.println("Exiting system now. Goodbye! •ᴗ•");
-//                        running = false;
-//                        break;
-//                    default:
-//                        // if user does not choose a valid option, display this message
-//                        System.out.println("Invalid option, please choose between options 1, 2, 3, or 0.");
-//                }
-//            }
-//        }
-//    }
-//
-//    // creating methods to interact w/ switch statements
-//    private static void displayAllProducts(Connection connection) {
-//
-//        // try with resources ensures the prepared statement is automatically closed after use
-//        // execute SQL statement
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(
-//                "SELECT ProductID, ProductName, UnitPrice, UnitsInStock FROM Products"
-//        );
-//             // execute the query and getting results, try with resources ensures result set is automatically closed after use
-//             ResultSet resultSet = preparedStatement.executeQuery()
-//        ) {
-//
-//            // header for products list
-//            System.out.println("\n            Products: ");
-//            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
-//
-//            // loop through the results
-//            while (resultSet.next()) {
-//                // process the data
-//                System.out.printf(
-//                        "Product ID:    %d\nName:          %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-//                        resultSet.getInt("ProductID"),
-//                        resultSet.getString("ProductName"),
-//                        resultSet.getDouble("UnitPrice"),
-//                        resultSet.getInt("UnitsInStock")
-//                );
-//            }
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    private static void displayAllCustomers(Connection connection){
-//
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(
-//                "SELECT ContactName, CompanyName, City, Country, Phone FROM Customers"
-//        );
-//             // execute query
-//             ResultSet resultSet = preparedStatement.executeQuery()) {
-//
-//            // header for customers list
-//            System.out.println("\n            Customers: ");
-//            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
-//
-//            // loop through the results
-//            while (resultSet.next()) {
-//                // process the data
-//                System.out.printf(
-//                        "Contact Name:     %s\nCompany Name:     %s\nCity:             %s\nCountry:          %s\nPhone:            %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-//                        resultSet.getString("ContactName"),
-//                        resultSet.getString("CompanyName"),
-//                        resultSet.getString("City"),
-//                        resultSet.getString("Country"),
-//                        resultSet.getString("Phone")
-//                );
-//            }
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
-//
-//    private static void displayAllCategories(Connection connection){
-//
-//        // try with resources ensures the prepared statement is automatically closed after use
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(
-//                "SELECT CategoryID, CategoryName FROM Categories"
-//        );
-//             // execute query
-//             ResultSet resultSet = preparedStatement.executeQuery()
-//        ) {
-//            // header for categories list
-//            System.out.println("\n            Categories: ");
-//            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
-//
-//            // loop through the results
-//            while (resultSet.next()) {
-//                // process the data
-//                System.out.printf(
-//                        "Category ID:       %s\nCategory Name:     %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-//                        resultSet.getInt("CategoryID"),
-//                        resultSet.getString("CategoryName")
-//                );
-//
-//            }
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//
-//    // passing scanner object as a parameter
-//    private static void displayProductsByCategory(Connection connection, Scanner theScanner){
-//
-//        // initializing categoryChoice outside of loop
-//        // using -1 as default vale to indicate it hasn't been assigned a valid category ID yet
-//        int categoryChoice = -1;
-//
-//        // while true loop to keep asking user for input until it is valid
-//        while (true) {
-//            System.out.println("\nWhich Category ID would you like to see to display all products?");
-//            System.out.print("Please choose between categories 1-8: ");
-//
-//            if (theScanner.hasNextInt()) {
-//                categoryChoice = theScanner.nextInt();
-//
-//                // if number is between 1-8
-//                if (categoryChoice >= 1 && categoryChoice <= 8) {
-//                    // if user chooses valid input, exit the loop
-//                    break;
-//                } else {
-//                    // if user chooses invalid number, prints error message & goes back to start of loop to ask again
-//                    System.out.println("Invalid Category ID. Please enter a number between 1-8.");
-//                }
-//            } else {
-//                // prints out error message if user enters in anything other than a number, like a string
-//                System.out.println("Invalid input. Please enter a number.");
-//                theScanner.next(); // clear invalid input
-//            }
-//        }
-//
-//        // printing out products table and listing columns, included the CategoryID column as well for validation
-//        // try with resources ensures the prepared statement is automatically closed after use
-//        try (PreparedStatement preparedStatement = connection.prepareStatement(
-//                "SELECT Cat.CategoryID, Prod.ProductID, Prod.ProductName, Prod.UnitPrice, Prod.UnitsInStock " +
-//                        "FROM Products Prod " +
-//                        "JOIN Categories Cat ON Prod.CategoryID = Cat.CategoryID " +
-//                        "WHERE Prod.CategoryID = ?" )
-//        ) {
-//            // 1 is the placeholder for the question mark, then asking for the users choice
-//            preparedStatement.setInt(1, categoryChoice);
-//
-//            // executing query and getting results
-//            // try with resources ensures the result set is automatically closed after use
-//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-//                System.out.println("\nProduct Details from Category ID: " + categoryChoice);
-//                System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
-//
-//                while (resultSet.next()) {
-//                    System.out.printf(
-//                            "Category ID:   %s\nProduct ID:    %d\nProduct Name:  %s\nPrice:         %.2f\nStock:         %d\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
-//                            resultSet.getInt("CategoryID"),
-//                            resultSet.getInt("ProductID"),
-//                            resultSet.getString("ProductName"),
-//                            resultSet.getDouble("UnitPrice"),
-//                            resultSet.getInt("UnitsInStock")
-//                    );
-//                }
-//
-//            }
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
+            List<Actor> actors = ActorDao.searchByLastName(theLastName);
+
+            if (actors.isEmpty()) {
+                // if empty, prints out message to user
+                System.out.println("No actors found with last name: " + theLastName);
+                return;
+            }
+
+            // header for actors list
+            System.out.println("\n            Actors: ");
+            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+            // loop through the results
+            for (Actor actor : actors) {
+                System.out.printf(
+                        "Actor ID: %d\nFirst Name: %s\nLast Name: %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                        actor.getActorId(),
+                        actor.getFirstName(),
+                        actor.getLastName()
+                );
+            }
+
+        } catch (Exception e) {
+            System.err.println("Sorry, there's been an error searching for actors: " + e.getMessage());
+        }
+    }
+
+    // creating method to display actors by their first & last name
+    private static void displayActorsByFirstAndLastName(ActorDao actorDao) {
+        try {
+            // asking user for first name
+            System.out.println("Please enter the first name of the actor: ");
+            String actorFirstName = theScanner.nextLine().toUpperCase();
+
+            // asking user for last name
+            System.out.println("Please enter the last name of the actor: ");
+            String actorLastName = theScanner.nextLine().toUpperCase();
+
+            // list for actors
+            List<Actor> actors = ActorDao.searchByFirstAndLastName(actorFirstName, actorLastName);
+
+            if (actors.isEmpty()) {
+                System.out.println("Sorry, no actors have been found with the name: " + actorFirstName + actorLastName);
+                return;
+            }
+
+            // header
+            System.out.println("\n            Actors: ");
+            System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+
+            // looping through results
+            for (Actor actor : actors) {
+                System.out.printf(
+                        "Actor ID: %d\nFirst Name: %s\nLast Name: %s\n─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────\n",
+                        actor.getActorId(),
+                        actor.getFirstName(),
+                        actor.getLastName()
+                );
+            }
+
+            // asking user for the actor ID to look up the films
+            System.out.print("Please enter the Actor ID to view all of their films: ");
+            int inputActorId = theScanner.nextInt();
+            theScanner.nextLine();
+
+            // creating new film dao object and passing in data source
+            FilmDao filmDao = new FilmDao(dataSource);
+            // making a list of films from the actor id given by the user
+            List<Film> films = filmDao.getFilmsByActorId(inputActorId);
+
+            if (films.isEmpty()) {
+                System.out.println("Sorry, no films have been found for this actor.");
+            } else {
+                System.out.println("\nHere are the films for Actor ID: " + inputActorId);
+                System.out.println("─────── ･ ｡ﾟ☆: *.☽ .*:☆ﾟ. ───────");
+                for (Film film : films) {
+                    System.out.println(film.getTitle());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Sorry, there's been an error searching for actors or films: " + e.getMessage());
+        }
+    }
+
 }

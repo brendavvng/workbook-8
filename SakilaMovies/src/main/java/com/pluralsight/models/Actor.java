@@ -2,10 +2,6 @@ package com.pluralsight.models;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Actor {
 
     // creating variables for actor

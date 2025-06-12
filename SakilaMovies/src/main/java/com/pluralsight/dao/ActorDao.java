@@ -6,60 +6,92 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ActorDao {
 
     //create our BasicDataSource
-    private BasicDataSource dataSource;
+    private static BasicDataSource dataSource;
 
     // constructor that sets up the BasicDataSource passed in
     public ActorDao(BasicDataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    // getter and setter
+    public static BasicDataSource getDataSource() {
+        return dataSource;
+    }
+
+    public static void setDataSource(BasicDataSource dataSource) {
+        ActorDao.dataSource = dataSource;
+    }
+
     // method to search actor by last name
-    public static List<Actor> searchByLastName(BasicDataSource dataSource, String lastName) {
-        String query = "SELECT actor_id, first_name, last_name FROM actor WHERE last_name = ?";
+    public static List<Actor> searchByLastName(String lastName) {
+
         // creating new list
         List<Actor> actors = new ArrayList<>();
 
+        // try with resources to handle closing resources properly
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement pS = connection.prepareStatement(query)) {
+             // creating prepared statement
+             PreparedStatement pS = connection.prepareStatement(
+                "SELECT actor_id, first_name, last_name FROM actor WHERE last_name = ?"
+             )) {
 
+            // setting parameter from users input for last name
             pS.setString(1, lastName);
 
+            // execute query
             try (ResultSet resultSet = pS.executeQuery()) {
                 while (resultSet.next()) {
                     int actorId = resultSet.getInt("actor_id");
                     String firstName = resultSet.getString("first_name");
-                    String theLastName = resultSet.getString("last_name");
-                    // adding actor to the list
-                    actors.add(new Actor(actorId, firstName, theLastName));
+                    String actorLastName = resultSet.getString("last_name");
+                    actors.add(new Actor(actorId, firstName, actorLastName));
                 }
             }
-        } catch (SQLException e) {
-            // printing out error message in case of error
-            System.out.println("Sorry, there's been an error: " + e.getMessage());
+        } catch (Exception e) {
+            // error message to user in case of error
+            System.out.println("Sorry, there's been an error while searching: " + e.getMessage());
         }
-        // return back list of actor
+        // returns list of actors
         return actors;
     }
 
-    // method to display list of actors
-    public static void displayActor(List<Actor> actors, String searchLastName) {
-        if (actors.isEmpty()) {
-            System.out.println("Sorry, no actors found with last name: " + searchLastName);
+    public static List<Actor> searchByFirstAndLastName(String firstName, String actorLastName) {
 
-        } else {
-            System.out.println("\nHere are the list of actors with the last name: " + searchLastName);
-            System.out.println("-------------------");
-            for (Actor actor : actors) {
-                System.out.println(actor.toString());
+        // creating new list
+        List<Actor> actors = new ArrayList<>();
+
+        // try with resources to handle closing resources properly
+        try (Connection connection = dataSource.getConnection();
+             // creating prepared statement
+             PreparedStatement pS = connection.prepareStatement(
+                     "SELECT actor_id, first_name, last_name FROM actor WHERE first_name = ? AND last_name = ?"
+             )) {
+
+            // setting parameter from users input for last name
+            pS.setString(1, firstName);
+            pS.setString(2, actorLastName);
+
+            // execute query
+            try (ResultSet resultSet = pS.executeQuery()) {
+                while (resultSet.next()) {
+                    int actorId = resultSet.getInt("actor_id");
+                    String actorFirName = resultSet.getString("first_name");
+                    String actorLasName = resultSet.getString("last_name");
+                    actors.add(new Actor(actorId, firstName, actorLastName));
+                }
             }
+        } catch (Exception e) {
+            // error message to user in case of error
+            System.out.println("Sorry, there's been an error while searching: " + e.getMessage());
         }
+        // returns list of actors
+        return actors;
     }
 
 }
