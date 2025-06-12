@@ -46,6 +46,7 @@ public class App {
         ActorDao actorDataManager = new ActorDao(dataSource);
         FilmDao filmDataManager = new FilmDao(dataSource);
 
+
         // creating boolean set to true for while loop
         boolean running = true;
 
@@ -73,7 +74,7 @@ public class App {
                     break;
                 case 2:
                     // displays first & last name of actor
-                    displayActorsByFirstAndLastName(actorDataManager);
+                    displayActorsByFirstAndLastName(actorDataManager, filmDataManager);
                     break;
                 case 0:
                     // if user chooses 0, exits the system
@@ -123,7 +124,7 @@ public class App {
     }
 
     // creating method to display actors by their first & last name
-    private static void displayActorsByFirstAndLastName(ActorDao actorDao) {
+    private static void displayActorsByFirstAndLastName(ActorDao actorDao, FilmDao filmDao) {
         try {
             // asking user for first name
             System.out.println("Please enter the first name of the actor: ");
