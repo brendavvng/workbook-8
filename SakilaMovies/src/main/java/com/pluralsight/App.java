@@ -127,11 +127,11 @@ public class App {
     private static void displayActorsByFirstAndLastName(ActorDao actorDao, FilmDao filmDao) {
         try {
             // asking user for first name
-            System.out.println("Please enter the first name of the actor: ");
+            System.out.print("Please enter the first name of the actor: ");
             String actorFirstName = theScanner.nextLine().toUpperCase();
 
             // asking user for last name
-            System.out.println("Please enter the last name of the actor: ");
+            System.out.print("Please enter the last name of the actor: ");
             String actorLastName = theScanner.nextLine().toUpperCase();
 
             // list for actors
@@ -161,8 +161,6 @@ public class App {
             int inputActorId = theScanner.nextInt();
             theScanner.nextLine();
 
-            // creating new film dao object and passing in data source
-            FilmDao filmDao = new FilmDao(dataSource);
             // making a list of films from the actor id given by the user
             List<Film> films = filmDao.getFilmsByActorId(inputActorId);
 
